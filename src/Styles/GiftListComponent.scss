@@ -1,0 +1,91 @@
+.giftListContainer {
+    margin-bottom: 10px;
+    justify-content: center;
+}
+
+.giftListCard {
+    text-align: center;
+    background-color: rgba(217, 205, 229, 0.3);
+    color: #333;
+    width: 475px;
+    border-radius: 15px;
+    box-shadow: none;
+
+    .ant-card-head {
+        background-color: rgba(232, 223, 240, 0.5);
+        color: #333;
+        border-radius: 15px 15px 0 0;
+    }
+}
+
+.giftListCarousel {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+}
+
+.carouselButton {
+    background-color: transparent;
+    border: none;
+    color: #333;
+    font-size: 24px;
+}
+
+.carouselContainer {
+    width: 275px;
+    height: 250px;
+    overflow: hidden;
+}
+
+.carouselItem {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.prizeCard {
+    text-align: center;
+    width: 250px;
+    height: 220px;
+    background-color: rgba(236, 161, 40, 0.7);
+    color: #333;
+    border-radius: 15px;
+    box-shadow: none;
+    margin: 0 10px;
+
+    .ant-card-head {
+        background-color: rgba(236, 161, 40, 0.9);
+        color: #333;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .ant-card-body {
+        padding: 15px;
+        border-radius: 0 0 15px 15px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .prizeDescription {
+        margin: 0;
+        font-size: 14px;
+        color: #333;
+        text-align: center;
+    }
+}
+
+.noPrizes {
+    margin-left: 130px;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    font-size: 18px;
+
+    p {
+        text-align: center;
+    }
+}
