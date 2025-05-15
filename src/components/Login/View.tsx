@@ -5,7 +5,7 @@ import { LoginOutlined } from '@ant-design/icons';
 const View = ({ form, onFinish, loginError }) => {
     return (
         <div>
-            {!localStorage.getItem('token') ? (
+            {/*!localStorage.getItem('token')*/true ? (
                 <Form
                     form={form}
                     name="login"

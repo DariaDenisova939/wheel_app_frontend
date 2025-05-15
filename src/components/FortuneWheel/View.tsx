@@ -1,11 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react'
 import '../../Styles/App.scss';
+import { useSelector } from 'react-redux';
+interface RootState {
+  availableSpins: number;
+  // Add other state properties here if you have any
+}
 
 export interface WheelComponentProps {
   segments: string[]
   segColors: string[]
   winningSegment: string
-  onFinished: (segment: string) => void
+  onFinished: (winningSegment: string) => void; // Изменено
   primaryColor?: string
   contrastColor?: string
   buttonText?: string
@@ -18,8 +23,8 @@ export interface WheelComponentProps {
   outlineWidth?: number
   countspin?: number
   isSpinning?: boolean; // Добавьте это свойство
-  spin?: () => void; // Добавьте это свойство
-  stop?: () => void; // Добавьте это свойство
+  spin_view: (winningSegment: string) => void; // Добавьте это свойство
+  stop: () => void; // Добавьте это свойство
   isStarted?: boolean; // Добавьте это свойство
 }
 
@@ -38,7 +43,8 @@ const View = ({
   fontFamily = 'proxima-nova',
   fontSize = '1em',
   outlineWidth = 10,
-  countspin
+  countspin,
+  spin_view
 }: WheelComponentProps) => {
   const randomString = () => {
     const chars =
@@ -50,10 +56,12 @@ const View = ({
     }
     return str
   }
+  countspin = useSelector((state: RootState) => state.availableSpins);
   const canvasId = useRef(`canvas-${randomString()}`)
   const wheelId = useRef(`wheel-${randomString()}`)
   const contextRef = useRef<CanvasRenderingContext2D  | null>(null);
   const currentSegmentRef = useRef('');
+  const winSegmentRef = useRef(winningSegment);
   const angleCurrentRef = useRef(0);
   const angleDeltaRef = useRef(0);
   const dimension = (size + 20) * 2
@@ -128,7 +136,9 @@ const View = ({
   const spin = () => {
     setStarted(true)
     setShowStopButton(false); // Скрываем кнопку "Стоп" перед запуском
-
+    spin_view(currentSegmentRef.current)
+    console.log(winningSegment)
+    console.log('winningSegment')
         // Устанавливаем таймер на 1 секунду перед показом кнопки "Стоп"
     isStop.current = false;
     //angleCurrent = 0
@@ -161,8 +171,8 @@ var onTimerTick = function onTimerTick() {
   angleDeltaRef.current = Math.min(angleDeltaRef.current, maxSpeed);
   setShowStopButton(true);
     } else {
-      
-      if (currentSegmentRef.current === winningSegment){
+        console.log(winSegmentRef.current)
+      if (currentSegmentRef.current === winSegmentRef.current){
         hasEncounteredWinningSegment = true;
         
       }
@@ -198,10 +208,6 @@ var onTimerTick = function onTimerTick() {
   isSpinning = false; // Сброс флага вращения
   angleDeltaRef.current = 0
   countCircleRef.current = 6
-  countspin = Number(localStorage.getItem('availableSpins'))
-  console.log(countspin)
-  localStorage.setItem('availableSpins', String(countspin-1))
-  console.log(localStorage.getItem('availableSpins'))
   }
   };
 
@@ -435,7 +441,7 @@ const drawNeedle = () => {
     isSlowingDown.current=true // Устанавливаем флаг замедления
     currentSegment = currentSegmentRef.current;
     
-  if (currentSegmentRef.current !== winningSegment){
+  if (currentSegmentRef.current !== winSegmentRef.current){
     // Рандомим угол от 0 до 2*пи/segments.length
     const randomAngle =  0.01 + Math.random() * ((2 * Math.PI / segments.length / 3) - 0.1);
     // Добавляем рандомизированный угол к countCircle
@@ -443,6 +449,7 @@ const drawNeedle = () => {
   }
  
   };
+  winSegmentRef.current = winningSegment
   return (
     <div id={wheelId.current}>
       <canvas
@@ -457,7 +464,7 @@ const drawNeedle = () => {
             <button
                 className='button'
                 onClick={isStarted ? stop : spin}
-                disabled={isStarted && !showStopButton || Number(localStorage.getItem('availableSpins')) === 0} // Кнопка "Крутить" неактивна, пока не появится "Стоп"
+                disabled={isStarted && !showStopButton || countspin === 0} // Кнопка "Крутить" неактивна, пока не появится "Стоп"
             >
                 {isStarted ? 'Стоп' : 'Крутить'}
             </button>

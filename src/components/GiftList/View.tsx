@@ -1,6 +1,6 @@
 import React from 'react';
 import { Carousel, Card, Row, Col, Button } from 'antd';
-import { LeftCircleOutlined, RightCircleOutlined } from '@ant-design/icons';
+import { LeftCircleOutlined, RightCircleOutlined, GiftOutlined } from '@ant-design/icons';
 import '../../Styles/GiftListComponent.scss';
 
 const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
@@ -8,7 +8,11 @@ const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
         <Row gutter={16} className="giftListContainer">
             <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
                 <Card
-                    title="Мои подарки"
+                    title={
+                        <>
+                            <GiftOutlined /> Мои подарки
+                        </>
+                    }
                     className="giftListCard"
                 >
                     <div className="giftListCarousel">
@@ -27,11 +31,11 @@ const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
                                     {prizes.map((prize, index) => (
                                         <div key={index} className="carouselItem">
                                             <Card
-                                                title={prize.value}
+                                                title={prize.type} // Display the prize type in the card header
                                                 className="prizeCard"
                                             >
                                                 <p className="prizeDescription">
-                                                    {"Описание подарка"}
+                                                    {prize.value} {/* Display the prize name in the card body */}
                                                 </p>
                                             </Card>
                                         </div>
@@ -39,7 +43,7 @@ const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
                                 </Carousel>
                             ) : (
                                 <div className="noPrizes">
-                                    <p>Пока нет подарков. Крутите колесо, чтобы начать получать призы!</p>
+                                    <p>Пока нет подарков. Зарегистрируйтесь и крутите колесо, чтобы начать получать призы!</p>
                                 </div>
                             )}
                         </div>

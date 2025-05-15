@@ -1,15 +1,15 @@
 // models/wheelData.js
 export const initialSegments = [
-    { value: "123456789123456789123456789123456789123456789123456789", probability: 0.1 },
-    { value: "22", probability: 0.2 },
-    { value: "33", probability: 0.3 },
-    { value: "44", probability: 0.1 },
-    { value: "55", probability: 0.1 },
-    { value: "66", probability: 0.05 },
-    { value: "77", probability: 0.05 },
-    { value: "8", probability: 0.05 },
-    { value: "9", probability: 0.05 },
-    { value: "10", probability: 0.05 }
+    { value: "Приз", probability: 0.1 },
+    { value: "Не повезло, тут пусто", probability: 0.2 },
+    { value: "Попытка прокрутить еще раз", probability: 0.3 },
+    { value: "Не повезло, тут пусто", probability: 0.1 },
+    { value: "Приз", probability: 0.1 },
+    { value: "Промокод", probability: 0.05 },
+    { value: "Не повезло, тут пусто", probability: 0.05 },
+    { value: "Промокод", probability: 0.05 },
+    { value: "Попытка прокрутить еще раз", probability: 0.05 },
+    { value: "Промокод", probability: 0.05 }
 ];
 
 export const prizes = [

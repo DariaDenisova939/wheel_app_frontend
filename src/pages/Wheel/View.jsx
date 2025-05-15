@@ -2,16 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Typography, Layout, Modal, Button } from 'antd';
 import FortuneWheelComponent from '@components/FortuneWheel';
 import GiftListComponent from '@components/GiftList';
-import SpinCounterComponent from '@components/SpinCounter/View';
+import SpinCounterComponent from '@components/SpinCounter';
 import WinnerModalComponent from '@components/Modal/View';
 import { initialSegments, prizes } from '@models/wheelData';
 import { segColors } from '@models/wheelData';
 import RegistrationForm from '@components/Registration';
 import LoginForm from '@components/Login';
 import Logout from '@components/Logout';
-import { UserAddOutlined } from '@ant-design/icons'; // Импортируем иконку
-
-import { LoginOutlined } from '@ant-design/icons'; // Импортируем иконку
+import { UserAddOutlined, LoginOutlined } from '@ant-design/icons';
+import { Provider } from 'react-redux';
+import store from '../../components/store';
+import SpinCounter from '@components/SpinCounter'; // Import the SpinCounter component
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -28,108 +29,86 @@ const AppController = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
 
-  // Состояния для модальных окон
+  // States for modal windows
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
   }, []);
 
-  useEffect(() => {
-    // Запрос для получения секторов колеса
-    const token = localStorage.getItem('token'); // Получаем токен из localStorage
-    console.log(token)
-    console.log('token')
-    const fetchSegments = async () => {
-      
-    };
-
-    fetchSegments();
-  }, []);
   const handleLoginSuccess = () => {
-    setIsAuthenticated(true); // Обновляем состояние после успешной авторизации
+    setIsAuthenticated(true);
     setLoginSuccess(true);
   };
+
   const handleLogoutSuccess = () => {
-    setIsAuthenticated(false); // Обновляем состояние после успешного выхода
+    setIsAuthenticated(false);
   };
+
   const onFinished = (winner) => {
     setCurrentWinner(winner);
     setIsModalOpen(true);
-
-    const prizeWithDate = {
-      name: winningSegment,
-      date: new Date().toLocaleString()
-    };
-
-    const updatedPrizes = [...prizes, prizeWithDate];
-    localStorage.setItem('prizes', JSON.stringify(updatedPrizes));
-
+    setSegments(segments);
     setIsSpinning(false);
     isStartedRef.current = false;
-  };
+    console.log(winner);
 
-  
+    // Call fetchAvailableSpins when the wheel finishes spinning
+
+  };
 
   const toggleGiftsVisibility = () => {
     setIsGiftsVisible(prevState => !prevState);
   };
 
-  const spin = () => {
-    isStartedRef.current = true;
-    setIsSpinning(true);
-  };
-
-  const stop = () => {
-    isStartedRef.current = false;
-    setIsSpinning(false);
-  };
-
-  // Обработчики для модальных окон
-const showLoginModal = () => {
+  const showLoginModal = () => {
     setIsLoginModalOpen(true);
-    setLoginSuccess(false); // Сбрасываем состояние успешной авторизации при открытии модального окна
+    setLoginSuccess(false);
   };
+
   const handleLoginModalClose = () => setIsLoginModalOpen(false);
 
   const showRegistrationModal = () => setIsRegistrationModalOpen(true);
   const handleRegistrationModalClose = () => setIsRegistrationModalOpen(false);
 
+  const [fetchAvailableSpins, setFetchAvailableSpins] = useState(null);
+
   return (
     <div>
       <Content style={{ display: 'flex', padding: '0px', alignItems: 'center' }}>
-        {/* Кнопки авторизации и регистрации */}
+        {/* Authentication and registration buttons */}
         <div style={{ position: 'absolute', top: '15px', left: '70px', display: 'flex', gap: '10px' }}>
-            {!isAuthenticated ? (
-                <>
-                    <Button type="primary" onClick={showLoginModal} icon={<LoginOutlined />}>
-                        Вход
-                    </Button>
-                    <Button type="primary" onClick={showRegistrationModal} icon={<UserAddOutlined />}>
-                        Регистрация
-                    </Button>
-                </>
-            ) : (
-                <Logout onLogoutSuccess={handleLogoutSuccess} />
-            )}
+          {!localStorage.getItem('token') ? (
+            <>
+              <Button type="primary" onClick={showLoginModal} icon={<LoginOutlined />}>
+                Вход
+              </Button>
+              <Button type="primary" onClick={showRegistrationModal} icon={<UserAddOutlined />}>
+                Регистрация
+              </Button>
+            </>
+          ) : (
+            <Logout onLogoutSuccess={handleLogoutSuccess} />
+          )}
         </div>
 
-        {/* Компонент с количеством попыток */}
+        {/* Component with the number of attempts */}
         <div style={{ flex: 1, textAlign: 'left', marginRight: '50px' }}>
-          <SpinCounterComponent availableSpins={localStorage.getItem('availableSpins')} />
+          <SpinCounter />
         </div>
 
-        {/* Компонент колеса */}
+        {/* Wheel component */}
         <div style={{ flex: 2, textAlign: 'center' }}>
           <Title level={1} style={{ color: '#ffcc00', textShadow: '2px 2px 4px #000' }}>Колесо фортуны</Title>
           <FortuneWheelComponent
-            
+            onFinished={onFinished}
+            winningSegment={winningSegment}
           />
         </div>
 
-        {/* Компонент с подарками */}
+        {/* Component with gifts */}
         <div style={{ flex: 1, marginLeft: '20px' }}>
           <GiftListComponent
             prizes={prizes}
@@ -146,7 +125,7 @@ const showLoginModal = () => {
         onClose={() => setIsModalOpen(false)}
       />
 
-      {/* Модальное окно для авторизации */}
+      {/* Modal window for authorization */}
       <Modal
         title="Авторизация"
         visible={isLoginModalOpen}
@@ -160,7 +139,7 @@ const showLoginModal = () => {
         />
       </Modal>
 
-      {/* Модальное окно для регистрации */}
+      {/* Modal window for registration */}
       <Modal
         title="Регистрация"
         visible={isRegistrationModalOpen}

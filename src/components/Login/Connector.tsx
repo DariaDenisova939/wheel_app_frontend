@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import LoginForm from './View'; // Убедитесь, что путь правильный
+import LoginForm from './View'; // Ensure the path is correct
 import { Form } from 'antd';
 
 const LoginConnector = ({ onLoginSuccess }) => {
     const [loginError, setLoginError] = useState(false);
     const [form] = Form.useForm();
-
 
     const onFinish = async (values) => {
         console.log('Авторизация:', values);
@@ -27,8 +26,16 @@ const LoginConnector = ({ onLoginSuccess }) => {
 
             const data = await response.json();
             console.log('Ответ сервера:', data);
+
             if (data.access_token) {
+                // Store the access token
                 localStorage.setItem('token', data.access_token);
+
+                // Store the refresh token if it exists
+                if (data.refresh_token) {
+                    localStorage.setItem('refreshToken', data.refresh_token);
+                }
+
                 setLoginError(false);
                 form.resetFields();
                 if (onLoginSuccess) {
