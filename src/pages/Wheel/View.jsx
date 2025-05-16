@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Typography, Layout, Modal, Button } from 'antd';
+import { Typography, Layout, Modal, Button, Alert } from 'antd';
 import FortuneWheelComponent from '@components/FortuneWheel';
 import GiftListComponent from '@components/GiftList';
-import SpinCounterComponent from '@components/SpinCounter';
+import SpinCounter from '@components/SpinCounter';
 import WinnerModalComponent from '@components/Modal/View';
 import { initialSegments, prizes } from '@models/wheelData';
 import { segColors } from '@models/wheelData';
@@ -12,7 +12,6 @@ import Logout from '@components/Logout';
 import { UserAddOutlined, LoginOutlined } from '@ant-design/icons';
 import { Provider } from 'react-redux';
 import store from '../../components/store';
-import SpinCounter from '@components/SpinCounter'; // Import the SpinCounter component
 
 const { Title } = Typography;
 const { Content } = Layout;
@@ -28,6 +27,8 @@ const AppController = () => {
   const isStartedRef = useRef(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState('');
 
   // States for modal windows
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -36,15 +37,34 @@ const AppController = () => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     setIsAuthenticated(!!token);
+    if (token) {
+      fetchAvailableSpins();
+    }
   }, []);
 
   const handleLoginSuccess = () => {
     setIsAuthenticated(true);
-    setLoginSuccess(true);
+    setIsLoginModalOpen(false); // Close the login modal
+    setAlertMessage('Авторизация прошла успешно!');
+    setShowSuccessAlert(true);
+    setTimeout(() => setShowSuccessAlert(false), 3000); // Hide alert after 3 seconds
+    fetchAvailableSpins();
+  };
+
+  const handleRegistrationSuccess = () => {
+    setIsRegistrationModalOpen(false); // Close the registration modal
+    setAlertMessage('Регистрация прошла успешно!');
+    setShowSuccessAlert(true);
+    setTimeout(() => setShowSuccessAlert(false), 3000); // Hide alert after 3 seconds
   };
 
   const handleLogoutSuccess = () => {
     setIsAuthenticated(false);
+  };
+
+  const fetchAvailableSpins = () => {
+    // Ваш код для получения доступных спинов
+    // Например, запрос к API
   };
 
   const onFinished = (winner) => {
@@ -56,7 +76,7 @@ const AppController = () => {
     console.log(winner);
 
     // Call fetchAvailableSpins when the wheel finishes spinning
-
+    fetchAvailableSpins();
   };
 
   const toggleGiftsVisibility = () => {
@@ -73,10 +93,23 @@ const AppController = () => {
   const showRegistrationModal = () => setIsRegistrationModalOpen(true);
   const handleRegistrationModalClose = () => setIsRegistrationModalOpen(false);
 
-  const [fetchAvailableSpins, setFetchAvailableSpins] = useState(null);
-
   return (
     <div>
+      {showSuccessAlert && (
+        <Alert
+          message={alertMessage}
+          type="success"
+          showIcon
+          style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 1000,
+          }}
+          onClose={() => setShowSuccessAlert(false)}
+        />
+      )}
       <Content style={{ display: 'flex', padding: '0px', alignItems: 'center' }}>
         {/* Authentication and registration buttons */}
         <div style={{ position: 'absolute', top: '15px', left: '70px', display: 'flex', gap: '10px' }}>
@@ -96,12 +129,12 @@ const AppController = () => {
 
         {/* Component with the number of attempts */}
         <div style={{ flex: 1, textAlign: 'left', marginRight: '50px' }}>
-          <SpinCounter />
+          <SpinCounter onFetchAvailableSpins={fetchAvailableSpins} />
         </div>
 
         {/* Wheel component */}
         <div style={{ flex: 2, textAlign: 'center' }}>
-          <Title level={1} style={{ color: '#ffcc00', textShadow: '2px 2px 4px #000' }}>Колесо фортуны</Title>
+          <Title level={1} style={{ color: '#ffcc00', textShadow: '2px 2px 4px #000', userSelect: 'none' }}>Колесо фортуны</Title>
           <FortuneWheelComponent
             onFinished={onFinished}
             winningSegment={winningSegment}
@@ -146,7 +179,7 @@ const AppController = () => {
         onCancel={handleRegistrationModalClose}
         footer={null}
       >
-        <RegistrationForm />
+        <RegistrationForm onRegistrationSuccess={handleRegistrationSuccess} />
       </Modal>
     </div>
   );

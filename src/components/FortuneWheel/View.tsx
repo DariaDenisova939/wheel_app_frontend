@@ -101,18 +101,13 @@ const View = ({
   ];
   let maxSpeed = speedsBySegments[segments.length-1]
   useEffect(() => {
-    //initCanvas()
-    wheelInit()
+    initCanvas()
+     wheelDraw()
     
     setTimeout(() => {
       window.scrollTo(0, 1)
     }, 0)
-  }, [])
-
-  const wheelInit = () => {
-    initCanvas()
-    wheelDraw()
-  }
+  }, [segments])
 
   const initCanvas = () => {
     let canvas: HTMLCanvasElement | null = document.getElementById(
@@ -137,9 +132,6 @@ const View = ({
     setStarted(true)
     setShowStopButton(false); // Скрываем кнопку "Стоп" перед запуском
     spin_view(currentSegmentRef.current)
-    console.log(winningSegment)
-    console.log('winningSegment')
-        // Устанавливаем таймер на 1 секунду перед показом кнопки "Стоп"
     isStop.current = false;
     //angleCurrent = 0
     if (timerHandle === 0) {
@@ -171,7 +163,6 @@ var onTimerTick = function onTimerTick() {
   angleDeltaRef.current = Math.min(angleDeltaRef.current, maxSpeed);
   setShowStopButton(true);
     } else {
-        console.log(winSegmentRef.current)
       if (currentSegmentRef.current === winSegmentRef.current){
         hasEncounteredWinningSegment = true;
         
@@ -257,7 +248,6 @@ var onTimerTick = function onTimerTick() {
   
 
 const drawWheel = () => {
-  //console.log(Number(localStorage.getItem('availableSpins')))
   const canvasContext = contextRef.current;
   if (!canvasContext) {
     return false;

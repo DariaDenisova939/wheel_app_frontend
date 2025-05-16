@@ -6,7 +6,7 @@ import '../../Styles/GiftListComponent.scss';
 const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
     return (
         <Row gutter={16} className="giftListContainer">
-            <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
+            <Col span={24} style={{ display: 'flex', justifyContent: 'center', userSelect: 'none' }}>
                 <Card
                     title={
                         <>

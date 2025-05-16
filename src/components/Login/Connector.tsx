@@ -30,7 +30,8 @@ const LoginConnector = ({ onLoginSuccess }) => {
             if (data.access_token) {
                 // Store the access token
                 localStorage.setItem('token', data.access_token);
-
+                const event = new Event('tokenChanged');
+            window.dispatchEvent(event);
                 // Store the refresh token if it exists
                 if (data.refresh_token) {
                     localStorage.setItem('refreshToken', data.refresh_token);

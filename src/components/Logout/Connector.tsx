@@ -24,6 +24,8 @@ const LogoutConnector = ({ onLogoutSuccess }) => {
 
             // Удаляем токен из localStorage после успешного выхода
             localStorage.removeItem('token');
+            const event = new Event('tokenChanged');
+            window.dispatchEvent(event);
             if (onLogoutSuccess) {
                 onLogoutSuccess();
             }

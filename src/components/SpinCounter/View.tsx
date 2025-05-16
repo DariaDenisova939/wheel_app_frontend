@@ -1,23 +1,9 @@
 import React, { useEffect } from 'react';
-import { useSelector } from 'react-redux';
 import { Typography, Card } from 'antd';
 
 const { Text } = Typography;
 
-// Define the type for your Redux state
-interface RootState {
-  availableSpins: number;
-  // Add other state properties here if you have any
-}
-
-const SpinCounterComponent = () => {
-    // Use the RootState type in useSelector
-    const availableSpins = useSelector((state: RootState) => state.availableSpins);
-
-    useEffect(() => {
-        localStorage.setItem('availableSpins', availableSpins.toString());
-    }, [availableSpins]);
-
+const SpinCounterComponent = ({ availableSpins }) => {
     return (
         <div style={{ textAlign: 'center', width: '350px', margin: '0 auto' }}>
             <Card
@@ -30,7 +16,7 @@ const SpinCounterComponent = () => {
                     height: '100px',
                 }}
             >
-                <Text style={{ fontSize: '24px', color: '#333', textShadow: '1px 1px 2px #000' }}>
+                <Text style={{ fontSize: '24px', color: '#333', textShadow: '1px 1px 2px #000', userSelect: 'none' }}>
                     Осталось вращений x{availableSpins}
                 </Text>
             </Card>

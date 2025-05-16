@@ -1,42 +1,35 @@
 import React, { useState, useRef, useEffect } from 'react';
-import Wheel from './View'; // Ensure the path is correct
+import View from './View'; // Убедитесь, что путь правильный
 import { Form } from 'antd';
-import { segColors, initialSegments } from '@models/wheelData'; // Import initialSegments
-import { useDispatch } from 'react-redux'; // Import useDispatch
-import { setPrizeType } from '../SpinCounter/actions'; // Import the action
+import { segColors, initialSegments } from '@models/wheelData'; // Импортируем initialSegments
+import { useDispatch, useSelector } from 'react-redux'; // Импортируем useDispatch и useSelector
+import { setPrizeType, setAvailableSpins } from '../SpinCounter/actions'; // Импортируем действие
 
-const FortuneWheelComponent = ({ onFinished, winningSegment }) => {
+export interface RootState {
+  prizeType: string,
+  availableSpins: number;
+  // Добавьте другие свойства состояния, если они есть
+}
+
+const FortuneWheelComponent = ({ onFinished}) => {
     const [form] = Form.useForm();
     const [segments, setSegments] = useState([]);
     const [isSpinning, setIsSpinning] = useState(false);
     const [currentWinner, setCurrentWinner] = useState('');
-    const [isDataLoaded, setIsDataLoaded] = useState(false); // State to track data loading
-    const [isWinnerFetched, setIsWinnerFetched] = useState(false); // State to track fetching the winning segment
+    const [isDataLoaded, setIsDataLoaded] = useState(false); // Состояние для отслеживания загрузки данных
+    const [isWinnerFetched, setIsWinnerFetched] = useState(false); // Состояние для отслеживания получения выигрышного сегмента
+    const [token, setToken] = useState(localStorage.getItem('token'));
     const isStartedRef = useRef(false);
-    const dispatch = useDispatch(); // Get access to dispatch
-
-    useEffect(() => {
-        const fetchData = async () => {
-            await fetchSegments();
-            setIsDataLoaded(true); // Set that data is loaded
-        };
-        fetchData();
-    }, []);
-
-    const fetchSegments = async () => {
-        const token = localStorage.getItem('token');
+    const dispatch = useDispatch(); // Получаем доступ к dispatch
+    const prizeType = useSelector((state: RootState) => state.prizeType);
+    const availableSpins = useSelector((state: RootState) => state.availableSpins);
+    const fetchSegments = async (currentToken) => {
         try {
-            if (!token) {
-                // If there's no token, use the default segments
-                setSegments(initialSegments);
-                return;
-            }
-
             const response = await fetch('http://try-your-luck.worktools.space/api/wheel-fortune/active-wheel', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${currentToken}`,
                 },
             });
 
@@ -49,24 +42,34 @@ const FortuneWheelComponent = ({ onFinished, winningSegment }) => {
                 value: sector.prize.name,
                 ...sector
             }));
-
+            
+            if (sectors)
             setSegments(sectors);
-            console.log(data);
+        else
+            setSegments(initialSegments)
+            setIsDataLoaded(true); // Устанавливаем, что данные загружены
+            console.log("Сегменты получены");
         } catch (error) {
             console.error('Ошибка при получении секторов:', error);
-            // Optionally, set default segments if there's an error
+            // Опционально, устанавливаем сегменты по умолчанию, если произошла ошибка
+
             setSegments(initialSegments);
+            setIsDataLoaded(true);
         }
     };
+    const fetchAvailableSpins = async () => {
+        const currentToken = localStorage.getItem('token');
 
-    const fetchWinningSegment = async () => {
         try {
-            const token = localStorage.getItem('token');
-            const response = await fetch('http://try-your-luck.worktools.space/api/wheel-fortune/win-sector', {
+            if (!currentToken) {
+                dispatch(setAvailableSpins(0)); // Reset available spins if there is no token
+                return;
+            }
+            const response = await fetch('http://try-your-luck.worktools.space/api/user/attempts', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${currentToken}`,
                 },
             });
 
@@ -75,10 +78,42 @@ const FortuneWheelComponent = ({ onFinished, winningSegment }) => {
             }
 
             const data = await response.json();
+            console.log('Ответ сервера:', data);
+            console.log('Получены попытки');
+
+            // Dispatch the action to set available spins
+            dispatch(setAvailableSpins(data.attempts));
+        } catch (error) {
+            console.error('Ошибка:', error);
+        }
+    };
+    const fetchWinningSegment = async () => {
+        try {
+            const currentToken = localStorage.getItem('token');
+            const response = await fetch('http://try-your-luck.worktools.space/api/wheel-fortune/win-sector', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка сети');
+            }
+/*const response = await fetch('http://try-your-luck.worktools.space/api/user/attempts', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${currentToken}`,
+                },
+            });*/
+            const data = await response.json();
             setCurrentWinner(data.prize.name);
-            setIsWinnerFetched(true); // Set that the winning segment is obtained
+            setIsWinnerFetched(true); // Устанавливаем, что выигрышный сегмент получен
             console.log('Выигрышный сегмент:', data.prize_type);
             dispatch(setPrizeType(data.prize_type));
+            fetchAvailableSpins()
         } catch (error) {
             console.error('Ошибка при получении выигрышного сегмента:', error);
         }
@@ -92,7 +127,7 @@ const FortuneWheelComponent = ({ onFinished, winningSegment }) => {
     };
 
     const spin = () => {
-        fetchWinningSegment(); // Fetch the winning segment before starting the spin
+        fetchWinningSegment(); // Получаем выигрышный сегмент перед началом вращения
         isStartedRef.current = true;
         setIsSpinning(true);
         console.log('spin');
@@ -103,6 +138,39 @@ const FortuneWheelComponent = ({ onFinished, winningSegment }) => {
         setIsSpinning(false);
     };
 
+    useEffect(() => {
+        const handleTokenChange = () => {
+            const currentToken = localStorage.getItem('token');
+            if (currentToken !== token) {
+                setToken(currentToken);
+                if (currentToken) {
+                    fetchSegments(currentToken);
+                    fetchAvailableSpins()
+                } else {
+                    setSegments(initialSegments); // Используем сегменты по умолчанию, если токена нет
+                    setIsDataLoaded(true);
+                }
+            }
+        };
+
+        // Listen for custom token change event
+        window.addEventListener('tokenChanged', handleTokenChange);
+
+        // Initial check
+        if (token) {
+            fetchSegments(token);
+            fetchAvailableSpins()
+        } else {
+            setSegments(initialSegments); // Используем сегменты по умолчанию, если токена нет
+            setIsDataLoaded(true);
+            dispatch(setAvailableSpins(0));
+        }
+
+        return () => {
+            window.removeEventListener('tokenChanged', handleTokenChange);
+        };
+    }, [token]);
+
     // Do not render the Wheel component until segments are obtained
     if (!isDataLoaded) {
         return <div>Загрузка...</div>;
@@ -110,7 +178,7 @@ const FortuneWheelComponent = ({ onFinished, winningSegment }) => {
 
     return (
         <div>
-            <Wheel
+            <View
                 segments={segments.map(segment => segment.value)}
                 segColors={segColors}
                 winningSegment={currentWinner}

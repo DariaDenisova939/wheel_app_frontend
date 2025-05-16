@@ -5,11 +5,39 @@ const GiftListConnector = () => {
     const [prizes, setPrizes] = useState([]);
     const carouselRef = useRef(null);
 
+    // Function to refresh token
+    const refreshToken = async () => {
+        const refreshToken = localStorage.getItem('refreshToken');
+        try {
+            const response = await fetch('http://try-your-luck.worktools.space/api/refresh-token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refreshToken }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to refresh token');
+            }
+
+            const data = await response.json();
+            localStorage.setItem('token', data.access_token);
+            localStorage.setItem('refreshToken', data.refreshToken);
+
+            return data.access_token;
+        } catch (error) {
+            console.error('Error refreshing token:', error);
+            throw error;
+        }
+    };
+
     // Function to fetch prizes from the server
-    const fetchPrizes = async () => {
+    const fetchPrizes = async (retry = true) => {
         const token = localStorage.getItem('token');
         try {
             if (!token) {
+                setPrizes([]); // Reset prizes if there is no token
                 return;
             }
             const response = await fetch('http://try-your-luck.worktools.space/api/user-prizes', {
@@ -19,9 +47,20 @@ const GiftListConnector = () => {
                     'Authorization': `Bearer ${token}`,
                 },
             });
+
+            if (response.status === 401 && retry) {
+                const newToken = await refreshToken();
+                if (newToken) {
+                    // Retry the request with the new token
+                    await fetchPrizes(false);
+                }
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+
             const data = await response.json();
             console.log(data);
 
@@ -70,6 +109,26 @@ const GiftListConnector = () => {
     useEffect(() => {
         fetchPrizes();
     }, []);
+
+    // Add an effect to listen for changes in the token
+    useEffect(() => {
+        const handleTokenChange = () => {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                setPrizes([]); // Reset prizes if there is no token
+            } else {
+                fetchPrizes(); // Fetch prizes whenever the token changes
+            }
+        };
+
+        // Listen for custom token change event
+        window.addEventListener('tokenChanged', handleTokenChange);
+
+        // Cleanup listener on component unmount
+        return () => {
+            window.removeEventListener('tokenChanged', handleTokenChange);
+        };
+    }, []); // Empty dependency array ensures this runs once on mount
 
     const handlePrizeAdded = () => {
         fetchPrizes(); // Fetch prizes again when a new prize is added
