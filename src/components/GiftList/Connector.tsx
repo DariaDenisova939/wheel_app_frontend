@@ -7,7 +7,7 @@ const GiftListConnector = () => {
 
     // Function to refresh token
     const refreshToken = async () => {
-        const refreshToken = localStorage.getItem('refreshToken');
+        const refreshToken = localStorage.getItem('token');
         try {
             const response = await fetch('http://try-your-luck.worktools.space/api/refresh-token', {
                 method: 'POST',
@@ -24,7 +24,6 @@ const GiftListConnector = () => {
             const data = await response.json();
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('refreshToken', data.refreshToken);
-
             return data.access_token;
         } catch (error) {
             console.error('Error refreshing token:', error);
