@@ -1,56 +1,61 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setUserPrizes } from '../SpinCounter/actions'; // Import the action to set user prizes
 import GiftListComponent from './View'; // Ensure the path is correct
-
+export interface RootState {
+  userPrizes: [];
+  // Добавьте другие свойства состояния, если они есть
+}
 const GiftListConnector = () => {
-    const [prizes, setPrizes] = useState([]);
     const carouselRef = useRef(null);
+    const dispatch = useDispatch(); // Initialize useDispatch
 
+    // Get prizes from Redux store
+    
     // Function to refresh token
     const refreshToken = async () => {
-    const refreshToken = localStorage.getItem('token'); // Исправлено на 'refreshToken'
+        const refreshToken = localStorage.getItem('token'); // Исправлено на 'refreshToken'
 
-    if (!refreshToken) {
-        throw new Error('No refresh token available');
-    }
-
-    try {
-        const response = await fetch('http://try-your-luck.worktools.space/api/auth/refresh', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${refreshToken}`
-
-            },
-        });
-
-        if (response.status === 401) {
-            localStorage.removeItem('token')
-            return;
+        if (!refreshToken) {
+            throw new Error('No refresh token available');
         }
 
-        const data = await response.json();
+        try {
+            const response = await fetch('http://try-your-luck.worktools.space/api/auth/refresh', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${refreshToken}`
+                },
+            });
 
-        if (!data.access_token) {
-            throw new Error('Invalid token data received');
+            if (response.status === 401) {
+                localStorage.removeItem('token')
+                return;
+            }
+
+            const data = await response.json();
+
+            if (!data.access_token) {
+                throw new Error('Invalid token data received');
+            }
+
+            localStorage.setItem('token', data.access_token);
+
+            return data.access_token;
+        } catch (error) {
+            console.error('Error refreshing token:', error);
+            throw error;
         }
-
-        localStorage.setItem('token', data.access_token);
-
-        return data.access_token;
-    } catch (error) {
-        console.error('Error refreshing token:', error);
-        throw error;
-    }
-};
-
+    };
 
     // Function to fetch prizes from the server
     const fetchPrizes = async (retry = true) => {
         const token = localStorage.getItem('token');
         try {
             if (!token) {
-                setPrizes([]); // Reset prizes if there is no token
+                dispatch(setUserPrizes([])); // Reset prizes in Redux if there is no token
                 return;
             }
             const response = await fetch('http://try-your-luck.worktools.space/api/user-prizes', {
@@ -113,7 +118,10 @@ const GiftListConnector = () => {
                 };
             });
 
-            setPrizes(prizes); // Set the prizes state with the array of prizes
+            dispatch(setUserPrizes(prizes)); // Dispatch the action to update Redux store
+            console.log('призы')
+            console.log(prizes)
+            
         } catch (error) {
             console.error('Error fetching prizes:', error);
         }
@@ -129,7 +137,7 @@ const GiftListConnector = () => {
         const handleTokenChange = () => {
             const token = localStorage.getItem('token');
             if (!token) {
-                setPrizes([]); // Reset prizes if there is no token
+                dispatch(setUserPrizes([])); // Reset prizes in Redux if there is no token
             } else {
                 fetchPrizes(); // Fetch prizes whenever the token changes
             }
@@ -144,22 +152,18 @@ const GiftListConnector = () => {
         };
     }, []); // Empty dependency array ensures this runs once on mount
 
-    const handlePrizeAdded = () => {
-        fetchPrizes(); // Fetch prizes again when a new prize is added
-    };
-
     const next = () => {
         carouselRef.current.next();
-        handlePrizeAdded(); // Call handlePrizeAdded when moving to the next prize
     };
 
     const prev = () => {
         carouselRef.current.prev();
     };
-
+    const prizesOutput = useSelector((state: RootState) => state.userPrizes);
+    console.log('Перед отправкой', prizesOutput)
     return (
         <GiftListComponent
-            prizes={prizes}
+            prizes={prizesOutput}
             carouselRef={carouselRef}
             next={next}
             prev={prev}

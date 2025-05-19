@@ -102,17 +102,25 @@ const AppController = () => {
           showIcon
           style={{
             position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+            top: '5px',
+            left: '47%',
+            transform: 'translateX(-50%)',
             zIndex: 1000,
           }}
           onClose={() => setShowSuccessAlert(false)}
         />
       )}
-      <Content style={{ display: 'flex', padding: '0px', alignItems: 'center' }}>
+      <Content style={{ display: 'flex', padding: '0px', alignItems: 'center', position: 'relative' }}>
         {/* Authentication and registration buttons */}
-        <div style={{ position: 'absolute', top: '15px', left: '70px', display: 'flex', gap: '10px' }}>
+        <div style={{
+          position: 'absolute',
+          top: '5vh', // Используем vh для адаптивности
+          left: '10%',
+          transform: 'translateX(-50%)',
+          display: 'flex',
+          gap: '10px',
+          justifyContent: 'center'
+        }}>
           {!localStorage.getItem('token') ? (
             <>
               <Button type="primary" onClick={showLoginModal} icon={<LoginOutlined />}>
@@ -121,7 +129,6 @@ const AppController = () => {
               <Button type="primary" onClick={showRegistrationModal} icon={<UserAddOutlined />}>
                 Регистрация
               </Button>
-              
             </>
           ) : (
             <Logout onLogoutSuccess={handleLogoutSuccess} />

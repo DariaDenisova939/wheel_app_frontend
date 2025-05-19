@@ -41,7 +41,7 @@ const View = ({
   upDuration = 100,
   downDuration = 1000,
   fontFamily = 'proxima-nova',
-  fontSize = '1em',
+  fontSize = '0.9em',
   outlineWidth = 10,
   countspin,
   spin_view
@@ -451,7 +451,7 @@ const drawNeedle = () => {
           pointerEvents: isFinished && isOnlyOnce ? 'none' : 'auto'
         }}
       />
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ textAlign: 'center', userSelect: 'none' }}>
             <button
                 className='button'
                 onClick={isStarted ? stop : spin}

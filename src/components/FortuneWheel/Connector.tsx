@@ -3,11 +3,12 @@ import View from './View'; // Убедитесь, что путь правиль
 import { Form } from 'antd';
 import { segColors, initialSegments } from '@models/wheelData'; // Импортируем initialSegments
 import { useDispatch, useSelector } from 'react-redux'; // Импортируем useDispatch и useSelector
-import { setPrizeType, setAvailableSpins } from '../SpinCounter/actions'; // Импортируем действие
+import { setPrizeType, setAvailableSpins, setUserPrizes } from '../SpinCounter/actions'; // Импортируем действие
 
 export interface RootState {
   prizeType: string,
-  availableSpins: number;
+  availableSpins: number,
+  userPrizes: [];
   // Добавьте другие свойства состояния, если они есть
 }
 
@@ -61,6 +62,85 @@ const FortuneWheelComponent = ({ onFinished}) => {
         throw error;
     }
 };
+    const fetchPrizes = async (retry = true) => {
+            const token = localStorage.getItem('token');
+            try {
+                if (!token) {
+                    dispatch(setUserPrizes([])); // Reset prizes in Redux if there is no token
+                    return;
+                }
+                const response = await fetch('http://try-your-luck.worktools.space/api/user-prizes', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                });
+    
+                if (response.status === 401 && retry) {
+                    const newToken = await refreshToken();
+                    if (newToken) {
+                        // Retry the request with the new token
+                        await fetchPrizes(false);
+                    }
+                    return;
+                }
+    
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+    
+                const data = await response.json();
+                console.log(data);
+    
+                // Map over the array of prizes to extract the necessary information
+                const prizes = data.map(item => {
+                    let typeText;
+                    let valueText;
+    
+                    // Determine the type text based on prize_type
+                    switch (item.prize_type) {
+                        case !item.prize || !item.prize.name:
+                            typeText = 'тип';
+                            valueText = 'бд пустая('; // No additional value needed for empty prize
+                            break;
+                        case 'empty_prize':
+                            typeText = 'Пустой приз';
+                            valueText = item.prize.name; // No additional value needed for empty prize
+                            break;
+                        case 'material_thing':
+                            typeText = 'Подарок';
+                            valueText = item.prize.name; // Assuming the prize name is available
+                            break;
+                        case 'attempt':
+                            typeText = 'Попытка';
+                            valueText = item.prize.name; // No additional value needed for attempt
+                            break;
+                        case 'promocode':
+                            typeText = 'Промокод: '+ item.promocode_code.code;
+                            valueText = item.prize.name; // Assuming the promocode is available in the prize object
+                            break;
+                        default:
+                            typeText = 'Неизвестный тип';
+                            valueText = '';
+                    }
+    
+                    return {
+                        value: valueText,
+                        type: typeText
+                        // Add any other properties you need
+                    };
+                });
+    
+                dispatch(setUserPrizes(prizes)); // Dispatch the action to update Redux store
+                console.log('призы')
+                console.log(prizes)
+                
+            } catch (error) {
+                console.error('Error fetching prizes:', error);
+            }
+        };
     const fetchSegments = async (retry = true, currentToken) => {
         try {
             const response = await fetch('http://try-your-luck.worktools.space/api/wheel-fortune/active-wheel', {
@@ -163,6 +243,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
             console.log('Выигрышный сегмент:', data);
             dispatch(setPrizeType(data.prize_type));
             fetchAvailableSpins()
+            
         } catch (error) {
             console.error('Ошибка при получении выигрышного сегмента:', error);
         }
@@ -172,6 +253,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
         setCurrentWinner(winner);
         if (onFinished) {
             onFinished(winner);
+            fetchPrizes()
         }
     };
 

@@ -28,10 +28,8 @@ const Connector = () => {
             if (!response.ok) {
                 const errorData = await response.json();
                 console.log('Ответ сервера:', response.status);
-                if (response.status === 400 && errorData.message.includes('password')) {
-                    setRegistrationError('Слишком короткий пароль');
-                } else {
-                    setRegistrationError('Ошибка регистрации. Попробуйте еще раз.');
+                if (response.status === 422) {
+                    setRegistrationError(errorData.message);
                 }
                 throw new Error('Ошибка сети');
             }
@@ -43,7 +41,6 @@ const Connector = () => {
             form.resetFields();
         } catch (error) {
             console.error('Ошибка регистрации:', error);
-            setRegistrationError('Ошибка регистрации. Пароль должен содержать от 6 до 20 символов');
         }
     };
 
