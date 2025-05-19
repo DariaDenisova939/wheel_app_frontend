@@ -7,29 +7,43 @@ const GiftListConnector = () => {
 
     // Function to refresh token
     const refreshToken = async () => {
-        const refreshToken = localStorage.getItem('token');
-        try {
-            const response = await fetch('http://try-your-luck.worktools.space/api/refresh-token', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ refreshToken }),
-            });
+    const refreshToken = localStorage.getItem('token'); // Исправлено на 'refreshToken'
 
-            if (!response.ok) {
-                throw new Error('Failed to refresh token');
-            }
+    if (!refreshToken) {
+        throw new Error('No refresh token available');
+    }
 
-            const data = await response.json();
-            localStorage.setItem('token', data.access_token);
-            localStorage.setItem('refreshToken', data.refreshToken);
-            return data.access_token;
-        } catch (error) {
-            console.error('Error refreshing token:', error);
-            throw error;
+    try {
+        const response = await fetch('http://try-your-luck.worktools.space/api/auth/refresh', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${refreshToken}`
+
+            },
+        });
+
+        if (response.status === 401) {
+            localStorage.removeItem('token')
+            return;
         }
-    };
+
+        const data = await response.json();
+
+        if (!data.access_token) {
+            throw new Error('Invalid token data received');
+        }
+
+        localStorage.setItem('token', data.access_token);
+
+        return data.access_token;
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        throw error;
+    }
+};
+
 
     // Function to fetch prizes from the server
     const fetchPrizes = async (retry = true) => {
@@ -43,6 +57,7 @@ const GiftListConnector = () => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
             });

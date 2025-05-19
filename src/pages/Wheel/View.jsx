@@ -121,6 +121,7 @@ const AppController = () => {
               <Button type="primary" onClick={showRegistrationModal} icon={<UserAddOutlined />}>
                 Регистрация
               </Button>
+              
             </>
           ) : (
             <Logout onLogoutSuccess={handleLogoutSuccess} />

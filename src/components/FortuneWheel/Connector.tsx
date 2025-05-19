@@ -23,18 +23,62 @@ const FortuneWheelComponent = ({ onFinished}) => {
     const dispatch = useDispatch(); // Получаем доступ к dispatch
     const prizeType = useSelector((state: RootState) => state.prizeType);
     const availableSpins = useSelector((state: RootState) => state.availableSpins);
-    const fetchSegments = async (currentToken) => {
+    
+    const refreshToken = async () => {
+    const refreshToken = localStorage.getItem('token'); // Исправлено на 'refreshToken'
+
+    if (!refreshToken) {
+        throw new Error('No refresh token available');
+    }
+
+    try {
+        const response = await fetch('http://try-your-luck.worktools.space/api/auth/refresh', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${refreshToken}`
+
+            },
+        });
+
+        if (response.status === 401) {
+            localStorage.removeItem('token')
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!data.access_token) {
+            throw new Error('Invalid token data received');
+        }
+
+        localStorage.setItem('token', data.access_token);
+
+        return data.access_token;
+    } catch (error) {
+        console.error('Error refreshing token:', error);
+        throw error;
+    }
+};
+    const fetchSegments = async (retry = true, currentToken) => {
         try {
             const response = await fetch('http://try-your-luck.worktools.space/api/wheel-fortune/active-wheel', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Authorization': `Bearer ${currentToken}`,
                 },
             });
 
-            if (!response.ok) {
-                throw new Error('Ошибка сети');
+            if (response.status === 401 && retry) {
+                const newToken = await refreshToken();
+                if (newToken) {
+                    // Retry the request with the new token
+                    await fetchSegments(false, currentToken);
+                }
+                return;
             }
 
             const data = await response.json();
@@ -57,7 +101,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
             setIsDataLoaded(true);
         }
     };
-    const fetchAvailableSpins = async () => {
+    const fetchAvailableSpins = async (retry = true) => {
         const currentToken = localStorage.getItem('token');
 
         try {
@@ -69,12 +113,18 @@ const FortuneWheelComponent = ({ onFinished}) => {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Authorization': `Bearer ${currentToken}`,
                 },
             });
 
-            if (!response.ok) {
-                throw new Error('Ошибка сети');
+            if (response.status === 401 && retry) {
+                const newToken = await refreshToken();
+                if (newToken) {
+                    // Retry the request with the new token
+                    await fetchAvailableSpins(false);
+                }
+                return;
             }
 
             const data = await response.json();
@@ -87,31 +137,30 @@ const FortuneWheelComponent = ({ onFinished}) => {
             console.error('Ошибка:', error);
         }
     };
-    const fetchWinningSegment = async () => {
+    const fetchWinningSegment = async (retry = true) => {
         try {
             const currentToken = localStorage.getItem('token');
             const response = await fetch('http://try-your-luck.worktools.space/api/wheel-fortune/win-sector', {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'Authorization': `Bearer ${currentToken}`,
                 },
             });
 
-            if (!response.ok) {
-                throw new Error('Ошибка сети');
+            if (response.status === 401 && retry) {
+                const newToken = await refreshToken();
+                if (newToken) {
+                    // Retry the request with the new token
+                    await fetchWinningSegment(false);
+                }
+                return;
             }
-/*const response = await fetch('http://try-your-luck.worktools.space/api/user/attempts', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${currentToken}`,
-                },
-            });*/
             const data = await response.json();
             setCurrentWinner(data.prize.name);
             setIsWinnerFetched(true); // Устанавливаем, что выигрышный сегмент получен
-            console.log('Выигрышный сегмент:', data.prize_type);
+            console.log('Выигрышный сегмент:', data);
             dispatch(setPrizeType(data.prize_type));
             fetchAvailableSpins()
         } catch (error) {
@@ -144,7 +193,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
             if (currentToken !== token) {
                 setToken(currentToken);
                 if (currentToken) {
-                    fetchSegments(currentToken);
+                    fetchSegments(false, currentToken);
                     fetchAvailableSpins()
                 } else {
                     setSegments(initialSegments); // Используем сегменты по умолчанию, если токена нет
@@ -158,7 +207,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
 
         // Initial check
         if (token) {
-            fetchSegments(token);
+            fetchSegments(false, token);
             fetchAvailableSpins()
         } else {
             setSegments(initialSegments); // Используем сегменты по умолчанию, если токена нет

@@ -35,14 +35,22 @@ const View = ({ form, onFinish, registrationSuccess, registrationError }) => {
                 <Form.Item
                     name="login"
                     label="Логин"
-                    rules={[{ required: true, message: 'Пожалуйста, введите имя логин!' }]}
+                    rules={[
+                        { required: true, message: 'Пожалуйста, введите логин!' },
+                        { min: 6, message: 'Логин должен содержать минимум 6 символов!' },
+                        { max: 20, message: 'Логин должен содержать максимум 20 символов!' }
+                    ]}
                 >
                     <Input />
                 </Form.Item>
                 <Form.Item
                     name="password"
                     label="Пароль"
-                    rules={[{ required: true, message: 'Пожалуйста, введите пароль!' }]}
+                    rules={[
+                        { required: true, message: 'Пожалуйста, введите пароль!' },
+                        { min: 6, message: 'Пароль должен содержать минимум 6 символов!' },
+                        { max: 20, message: 'Пароль должен содержать максимум 20 символов!' }
+                    ]}
                 >
                     <Input.Password />
                 </Form.Item>

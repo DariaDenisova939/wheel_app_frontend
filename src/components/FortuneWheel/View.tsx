@@ -424,7 +424,8 @@ const drawNeedle = () => {
     ctx.clearRect(0, 0, dimension, dimension)
   }
   const stop = () => {
-    setShowStopButton(false); // Скрываем кнопку "Стоп" после остановки
+    setShowStopButton(false);
+     // Скрываем кнопку "Стоп" после остановки
     //setStarted(false);
     isStop.current = true
     isSpinning = true; // Устанавливаем флаг, что колесо сейчас вращается
@@ -454,7 +455,7 @@ const drawNeedle = () => {
             <button
                 className='button'
                 onClick={isStarted ? stop : spin}
-                disabled={isStarted && !showStopButton || countspin === 0} // Кнопка "Крутить" неактивна, пока не появится "Стоп"
+                disabled={(isStarted && !showStopButton) || (countspin === 0 && !isStarted)} // Кнопка "Крутить" неактивна, пока не появится "Стоп"
             >
                 {isStarted ? 'Стоп' : 'Крутить'}
             </button>

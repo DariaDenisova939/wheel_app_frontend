@@ -14,6 +14,7 @@ const Connector = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
                     username: values.login,
@@ -23,9 +24,10 @@ const Connector = () => {
                     patronymic: values.patronymic,
                 }),
             });
-
+            console.log('Ответ сервера:', response);
             if (!response.ok) {
                 const errorData = await response.json();
+                console.log('Ответ сервера:', response.status);
                 if (response.status === 400 && errorData.message.includes('password')) {
                     setRegistrationError('Слишком короткий пароль');
                 } else {
@@ -33,9 +35,9 @@ const Connector = () => {
                 }
                 throw new Error('Ошибка сети');
             }
-
+            console.log()
             const data = await response.json();
-            console.log('Ответ сервера:', data);
+            
             setRegistrationSuccess(true);
             setRegistrationError('');
             form.resetFields();
