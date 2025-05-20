@@ -63,7 +63,7 @@ const LogoutConnector = ({ onLogoutSuccess }) => {
             }
             
             const data = await response.json();
-            console.log('Ответ сервера:', data); // Выводим ответ сервера в консоль
+            //console.log('Ответ сервера:', data); // Выводим ответ сервера в консоль
 
             // Удаляем токен из localStorage после успешного выхода
             localStorage.removeItem('token');
@@ -74,8 +74,8 @@ const LogoutConnector = ({ onLogoutSuccess }) => {
             }
             message.success('Вы успешно вышли из системы.');
         } catch (error) {
-            console.log("token")
-            console.log(token)
+            //console.log("token")
+            //console.log(token)
             console.error('Ошибка:', error);
             message.error('Ошибка при выходе. Попробуйте еще раз.');
         }

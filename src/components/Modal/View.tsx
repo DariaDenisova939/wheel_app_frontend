@@ -1,9 +1,9 @@
 import React from 'react';
 import { Modal, Button, Card } from 'antd';
-import { GiftOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux'; // Import useSelector
+import { GiftOutlined, TrophyOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
 import '../../Styles/WinnerModal.scss';
-import { setPrizeType } from '../SpinCounter/actions'; // Import the action
+import { setPrizeType } from '../SpinCounter/actions';
 
 interface WinnerModalProps {
   isModalOpen: boolean;
@@ -11,27 +11,39 @@ interface WinnerModalProps {
   prizes: { value: string; imageUrl: string }[];
   onClose: () => void;
 }
+
 interface RootState {
   prizeType: string;
   // Add other state properties here if you have any
 }
+
 const WinnerModalComponent: React.FC<WinnerModalProps> = ({ isModalOpen, currentWinner, prizes, onClose }) => {
   // Access the prize type from the Redux store
   const prizeType = useSelector((state: RootState) => state.prizeType);
 
-  // Function to get the image URL based on the prize type
-  const getImageUrl = () => {
+  // Function to get the icon based on the prize type
+  const getIcon = () => {
     switch (prizeType) {
-      case 'empty_prize':
-        return './img4.jpg'; // Replace with the actual path
-      case 'material_thing':
-        return './img2.png'; // Replace with the actual path
+      case 'empty-prize':
+        return <GiftOutlined style={{ fontSize: '40px', color: '#ccc', filter: 'drop-shadow(0 1px 20px rgba(0, 0, 0, 0.5))' }} />;
+      case 'material-thing':
+        return <GiftOutlined style={{ fontSize: '40px', color: '#ff6b6b', filter: 'drop-shadow(0 1px 20px rgba(0, 0, 0, 0.5))' }} />;
       case 'attempt':
-        return './img3.png'; // Replace with the actual path
+        return <TrophyOutlined style={{ fontSize: '40px', color: '#ffd166', filter: 'drop-shadow(0 1px 20px rgba(0, 0, 0, 0.5))' }} />;
       case 'promocode':
-        return './image.png'; // Replace with the actual path
+        return <TrophyOutlined style={{ fontSize: '40px', color: '#06d6a0', filter: 'drop-shadow(0 1px 20px rgba(0, 0, 0, 0.5))' }} />;
       default:
-        return './img3.png'; // Replace with the actual path
+        return <GiftOutlined style={{ fontSize: '40px', color: '#ccc', filter: 'drop-shadow(0 1px 20px rgba(0, 0, 0, 0.5))' }} />;
+    }
+  };
+
+  // Function to get the title based on the prize type
+  const getTitle = () => {
+    switch (prizeType) {
+      case 'empty-prize':
+        return 'Не расстраивайся!';
+      default:
+        return 'Поздравляем!';
     }
   };
 
@@ -39,8 +51,7 @@ const WinnerModalComponent: React.FC<WinnerModalProps> = ({ isModalOpen, current
     <Modal
       title={
         <div className="winnerModalTitle">
-          <GiftOutlined className="giftIcon" />
-          Поздравляем!
+          {getTitle()}
         </div>
       }
       visible={isModalOpen}
@@ -60,13 +71,21 @@ const WinnerModalComponent: React.FC<WinnerModalProps> = ({ isModalOpen, current
       {currentWinner && (
         <Card
           cover={
-            <img
-              alt={currentWinner}
-              src={getImageUrl()} // Use the image URL based on the prize type
-              className="cardImage"
-            />
+            <div
+              style={{
+                height: '200px',
+                position: 'relative',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <div className="centerIcon">
+                {getIcon()}
+              </div>
+            </div>
           }
-          className="winnerModalCard"
+          className={`winnerModalCard winnerModalCard-${prizeType}`}
         >
           <Card.Meta
             title={

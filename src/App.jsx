@@ -13,7 +13,6 @@ const App = () => {
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
-            overflow: 'auto' // Разрешаем прокрутку
         }}>
             {/* Центральный градиент */}
             <div style={{

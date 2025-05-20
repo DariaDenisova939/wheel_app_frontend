@@ -8,7 +8,7 @@ const Connector = () => {
     const [form] = Form.useForm();
 
     const handleRegistration = async (values) => {
-        console.log('Регистрация:', values);
+        //console.log('Регистрация:', values);
         try {
             const response = await fetch('http://try-your-luck.worktools.space/api/auth/register', {
                 method: 'POST',
@@ -24,16 +24,15 @@ const Connector = () => {
                     patronymic: values.patronymic,
                 }),
             });
-            console.log('Ответ сервера:', response);
+            //console.log('Ответ сервера:', response);
             if (!response.ok) {
                 const errorData = await response.json();
-                console.log('Ответ сервера:', response.status);
+                //console.log('Ответ сервера:', response.status);
                 if (response.status === 422) {
                     setRegistrationError(errorData.message);
                 }
                 throw new Error('Ошибка сети');
             }
-            console.log()
             const data = await response.json();
             
             setRegistrationSuccess(true);

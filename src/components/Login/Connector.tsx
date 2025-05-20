@@ -7,12 +7,13 @@ const LoginConnector = ({ onLoginSuccess }) => {
     const [form] = Form.useForm();
 
     const onFinish = async (values) => {
-        console.log('Авторизация:', values);
+        //console.log('Авторизация:', values);
         try {
             const response = await fetch('http://try-your-luck.worktools.space/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({
                     username: values.login,
@@ -25,7 +26,7 @@ const LoginConnector = ({ onLoginSuccess }) => {
             }
 
             const data = await response.json();
-            console.log('Ответ сервера:', data);
+            //console.log('Ответ сервера:', data);
 
             if (data.access_token) {
                 // Store the access token

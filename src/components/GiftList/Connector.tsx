@@ -81,7 +81,7 @@ const GiftListConnector = () => {
             }
 
             const data = await response.json();
-            console.log(data);
+            //console.log(data);
 
             // Map over the array of prizes to extract the necessary information
             const prizes = data.map(item => {
@@ -90,11 +90,11 @@ const GiftListConnector = () => {
 
                 // Determine the type text based on prize_type
                 switch (item.prize_type) {
-                    case 'empty_prize':
+                    case 'empty-prize':
                         typeText = 'Пустой приз';
                         valueText = item.prize.name; // No additional value needed for empty prize
                         break;
-                    case 'material_thing':
+                    case 'material-thing':
                         typeText = 'Подарок';
                         valueText = item.prize.name; // Assuming the prize name is available
                         break;
@@ -119,8 +119,8 @@ const GiftListConnector = () => {
             });
 
             dispatch(setUserPrizes(prizes)); // Dispatch the action to update Redux store
-            console.log('призы')
-            console.log(prizes)
+            //console.log('призы')
+            //console.log(prizes)
             
         } catch (error) {
             console.error('Error fetching prizes:', error);
@@ -160,7 +160,6 @@ const GiftListConnector = () => {
         carouselRef.current.prev();
     };
     const prizesOutput = useSelector((state: RootState) => state.userPrizes);
-    console.log('Перед отправкой', prizesOutput)
     return (
         <GiftListComponent
             prizes={prizesOutput}

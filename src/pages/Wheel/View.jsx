@@ -73,7 +73,7 @@ const AppController = () => {
     setSegments(segments);
     setIsSpinning(false);
     isStartedRef.current = false;
-    console.log(winner);
+    //console.log(winner);
 
     // Call fetchAvailableSpins when the wheel finishes spinning
     fetchAvailableSpins();

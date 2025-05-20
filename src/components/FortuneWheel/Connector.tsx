@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import View from './View'; // Убедитесь, что путь правильный
-import { Form } from 'antd';
+import { Form, Spin } from 'antd';
 import { segColors, initialSegments } from '@models/wheelData'; // Импортируем initialSegments
 import { useDispatch, useSelector } from 'react-redux'; // Импортируем useDispatch и useSelector
 import { setPrizeType, setAvailableSpins, setUserPrizes } from '../SpinCounter/actions'; // Импортируем действие
@@ -92,7 +92,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
                 }
     
                 const data = await response.json();
-                console.log(data);
+                //console.log(data);
     
                 // Map over the array of prizes to extract the necessary information
                 const prizes = data.map(item => {
@@ -105,11 +105,11 @@ const FortuneWheelComponent = ({ onFinished}) => {
                             typeText = 'тип';
                             valueText = 'бд пустая('; // No additional value needed for empty prize
                             break;
-                        case 'empty_prize':
+                        case 'empty-prize':
                             typeText = 'Пустой приз';
                             valueText = item.prize.name; // No additional value needed for empty prize
                             break;
-                        case 'material_thing':
+                        case 'material-thing':
                             typeText = 'Подарок';
                             valueText = item.prize.name; // Assuming the prize name is available
                             break;
@@ -134,8 +134,8 @@ const FortuneWheelComponent = ({ onFinished}) => {
                 });
     
                 dispatch(setUserPrizes(prizes)); // Dispatch the action to update Redux store
-                console.log('призы')
-                console.log(prizes)
+                //console.log('призы')
+                //console.log(prizes)
                 
             } catch (error) {
                 console.error('Error fetching prizes:', error);
@@ -172,7 +172,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
         else
             setSegments(initialSegments)
             setIsDataLoaded(true); // Устанавливаем, что данные загружены
-            console.log("Сегменты получены");
+            //console.log("Сегменты получены");
         } catch (error) {
             console.error('Ошибка при получении секторов:', error);
             // Опционально, устанавливаем сегменты по умолчанию, если произошла ошибка
@@ -208,8 +208,8 @@ const FortuneWheelComponent = ({ onFinished}) => {
             }
 
             const data = await response.json();
-            console.log('Ответ сервера:', data);
-            console.log('Получены попытки');
+            //console.log('Ответ сервера:', data);
+            //console.log('Получены попытки');
 
             // Dispatch the action to set available spins
             dispatch(setAvailableSpins(data.attempts));
@@ -240,7 +240,7 @@ const FortuneWheelComponent = ({ onFinished}) => {
             const data = await response.json();
             setCurrentWinner(data.prize.name);
             setIsWinnerFetched(true); // Устанавливаем, что выигрышный сегмент получен
-            console.log('Выигрышный сегмент:', data);
+            //console.log('Выигрышный сегмент:', data);
             dispatch(setPrizeType(data.prize_type));
             fetchAvailableSpins()
             
@@ -261,7 +261,6 @@ const FortuneWheelComponent = ({ onFinished}) => {
         fetchWinningSegment(); // Получаем выигрышный сегмент перед началом вращения
         isStartedRef.current = true;
         setIsSpinning(true);
-        console.log('spin');
     };
 
     const stop = () => {
@@ -304,9 +303,12 @@ const FortuneWheelComponent = ({ onFinished}) => {
 
     // Do not render the Wheel component until segments are obtained
     if (!isDataLoaded) {
-        return <div>Загрузка...</div>;
+        return (
+            <div style={{ textAlign: 'center', padding: '20px' }}>
+                <Spin tip="Загрузка..." />
+            </div>
+        );
     }
-
     return (
         <div>
             <View

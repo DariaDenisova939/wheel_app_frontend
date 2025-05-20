@@ -4,6 +4,10 @@ import { LeftCircleOutlined, RightCircleOutlined, GiftOutlined } from '@ant-desi
 import '../../Styles/GiftListComponent.scss';
 
 const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
+    // Reverse the prizes array to start from the last element
+    const reversedPrizes = [...prizes].reverse();
+    //console.log(reversedPrizes);
+
     return (
         <Row gutter={16} className="giftListContainer">
             <Col span={24} style={{ display: 'flex', justifyContent: 'center', userSelect: 'none' }}>
@@ -16,7 +20,7 @@ const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
                     className="giftListCard"
                 >
                     <div className="giftListCarousel">
-                        {prizes.length > 0 && (
+                        {reversedPrizes.length > 0 && (
                             <Button
                                 onClick={prev}
                                 className="carouselButton"
@@ -26,9 +30,9 @@ const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
                             </Button>
                         )}
                         <div className="carouselContainer">
-                            {prizes.length > 0 ? (
-                                <Carousel ref={carouselRef} dots={true} style={{ height: '260px' }}>
-                                    {prizes.map((prize, index) => (
+                            {reversedPrizes.length > 0 ? (
+                                <Carousel ref={carouselRef} dots={false} style={{ height: '260px' }}>
+                                    {reversedPrizes.map((prize, index) => (
                                         <div key={index} className="carouselItem">
                                             <Card
                                                 title={prize.type} // Display the prize type in the card header
@@ -47,7 +51,7 @@ const GiftListComponent = ({ prizes, carouselRef, next, prev }) => {
                                 </div>
                             )}
                         </div>
-                        {prizes.length > 0 && (
+                        {reversedPrizes.length > 0 && (
                             <Button
                                 onClick={next}
                                 className="carouselButton"

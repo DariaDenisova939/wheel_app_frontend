@@ -1,55 +1,81 @@
 // WinnerModal.scss
 
 .winnerModal {
-    &Title {
-      text-align: center;
-      color: #1890ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-  
-      .giftIcon {
-        font-size: 24px;
-        margin-right: 10px;
-      }
+  &Title {
+    text-align: center;
+    color: #1890ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .giftIcon {
+      font-size: 24px;
+      margin-right: 10px;
     }
-  
-    &Footer {
-      .closeButton {
-        background-color: #1890ff;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        transition: background-color 0.3s ease;
-  
-        &:hover {
-          background-color: #40a9ff;
-        }
-      }
-    }
-  
-    &Card {
-      width: 100%;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  
-      .cardImage {
-        width: 100%;
-        max-height: 250px;
-        object-fit: contain;
-        border-radius: 10px 10px 0 0;
-      }
-  
-      .cardTitle {
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        width: 100%;
+  }
+
+  &Footer {
+    .closeButton {
+      background-color: #1890ff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+
+      &:hover {
+        background-color: #40a9ff;
       }
     }
   }
-  
+
+  &Card {
+    width: 100%;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+
+    .cardImage {
+      width: 100%;
+      max-height: 250px;
+      object-fit: contain;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .cardTitle {
+      text-align: center;
+      font-size: 20px;
+      font-weight: bold;
+      color: #333;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
+    }
+
+    .centerIcon {
+      position: absolute;
+      top: 65%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+    }
+  }
+
+  // Стили для разных типов призов
+  &Card-empty-prize {
+    background: radial-gradient(circle at center, white, #eaf28f, #cde8b5, #fff2d5, #f7fadb);
+  }
+
+  &Card-material-thing {
+    background: radial-gradient(circle at center, white, #ff9a9e, #fad0c4, #fbc2eb, #a6c1ee);
+  }
+
+  &Card-attempt {
+    background: radial-gradient(circle at center, white, #a1c4fd, #c2e9fb, #a1c4fd, #c2e9fb);
+  }
+
+  &Card-promocode {
+    background: radial-gradient(circle at center, white, #84fab0, #8fd3f4, #84fab0, #8fd3f4);
+  }
+}

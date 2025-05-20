@@ -41,7 +41,7 @@ const View = ({
   upDuration = 100,
   downDuration = 1000,
   fontFamily = 'proxima-nova',
-  fontSize = '0.9em',
+  fontSize = '1.5em',
   outlineWidth = 10,
   countspin,
   spin_view
@@ -217,13 +217,13 @@ var onTimerTick = function onTimerTick() {
   }
 
   const drawSegment = (key: number, lastAngle: number, angle: number) => {
-    canvasContext = contextRef.current;
+    const canvasContext = contextRef.current;
     if (!canvasContext) {
       return false;
     }
     const ctx = canvasContext;
     const value = segments[key];
-  
+
     ctx.save();
     ctx.beginPath();
     ctx.moveTo(centerX, centerY);
@@ -233,18 +233,26 @@ var onTimerTick = function onTimerTick() {
     ctx.fillStyle = segColors[key % segColors.length];
     ctx.fill();
     ctx.stroke();
-  
+
     ctx.save();
     ctx.translate(centerX, centerY);
     ctx.rotate((lastAngle + angle) / 2);
     ctx.fillStyle = contrastColor;
-    ctx.font = `bold ${fontSize} ${fontFamily}`;
-  
+    ctx.font = `bold ${17}px ${fontFamily}`;
+    ctx.textBaseline = 'middle'; // Центрирование текста
+
     const displayText = value.length > 21 ? value.substring(0, 18) + '...' : value.substring(0, 21);
-  
+
+    // Добавление тени для улучшения контрастности
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.shadowBlur = 2;
+
     ctx.fillText(displayText, size / 2 + 10, 0);
     ctx.restore();
-  };
+};
+
   
 
 const drawWheel = () => {
