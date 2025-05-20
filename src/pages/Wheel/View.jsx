@@ -123,12 +123,30 @@ const AppController = () => {
         }}>
           {!localStorage.getItem('token') ? (
             <>
-              <Button type="primary" onClick={showLoginModal} icon={<LoginOutlined />}>
-                Вход
-              </Button>
-              <Button type="primary" onClick={showRegistrationModal} icon={<UserAddOutlined />}>
-                Регистрация
-              </Button>
+              <Button
+        type="primary"
+        onClick={showLoginModal}
+        icon={<LoginOutlined />}
+        style={{
+          backgroundColor: '#FFA500',
+          borderColor: '#FFA500',
+          boxShadow: '0 4px 8px rgba(255, 165, 0, 0.4)' // Тень для кнопки
+        }}
+      >
+        Вход
+      </Button>
+      <Button
+        type="primary"
+        onClick={showRegistrationModal}
+        icon={<UserAddOutlined />}
+        style={{
+          backgroundColor: '#FFA500',
+          borderColor: '#FFA500',
+          boxShadow: '0 4px 8px rgba(255, 165, 0, 0.4)' // Тень для кнопки
+        }}
+      >
+        Регистрация
+      </Button>
             </>
           ) : (
             <Logout onLogoutSuccess={handleLogoutSuccess} />
